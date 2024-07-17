@@ -127,3 +127,10 @@ Login Succeeded
 
 ```
 
+### intro to k8s 
+<img src="k8s.png">
+
+### architecture 1 
+
+<img src="arch1.png">
+
