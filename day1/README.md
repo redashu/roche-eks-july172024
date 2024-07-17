@@ -370,3 +370,71 @@ exit
 
 ```
 
+### checking pod yaml from a running pod 
+
+```
+kubectl get pods  amitvpod10  -o yaml 
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: "2024-07-17T11:26:03Z"
+  name: amitvpod10
+  namespace: default
+  resourceVersion: "588197"
+  uid: c71b03e8-304e-4c43-adff-114e55e7ee21
+spec:
+  containers:
+  - command:
+    - ping
+    - fb.com
+    image: busybox
+    imagePullPolicy: Always
+    name: amitv1
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+```
+
+### creating pod using cli 
+
+```
+[ashu@roche-client k8s-resources]$ kubectl   run  ashupod3  --image=busybox  --command ping fb.com 
+pod/ashupod3 created
+[ashu@roche-client k8s-resources]$ kubectl   get pods
+NAME             READY   STATUS             RESTARTS      AGE
+amitvpod10       1/1     Running            0             5m4s
+anipod-1         1/1     Running            0             11m
+ashupod3         1/1     Running            0             4s
+gauripod1        1/1     Running            0             5m39s
+inayatpod1       1/1     Running            0             27s
+kdpodnew         1/1     Running            0             34s
+mg-pod1          1/1     Running            0             7m59s
+pod1             0/1     CrashLoopBackOff   2 (26s ago)   40s
+rajeshpod        1/2     NotReady           2 (22s ago)   23s
+rajeshpod1       2/2     Running            0             3m53s
+rajpod2          1/1     Running            0             19s
+sanjeevpod1111   1/1     Running            0             3m49s
+subodh-pod       1/1     Running            0             3m49s
+[ashu@roche-client k8s-resources]$ kubectl   delete  pod ashupod3 
+pod "ashupod3" deleted
+
+
+```
+
+### generating yaml from kubectl
+
+```
+  88  kubectl   run  ashupod3  --image=busybox  --command ping fb.com   --dry-run=client 
+   89  kubectl   run  ashupod3  --image=busybox  --command ping fb.com   --dry-run=client  -o yaml
+   90  kubectl   run  ashupod3  --image=busybox  --command ping fb.com   --dry-run=client  -o json 
+   91  kubectl   run  ashupod3  --image=busybox  --command ping fb.com   --dry-run=client  -o yaml  >autopod1.yaml 
+   92  kubectl   run  ashupod3  --image=busybox  --command ping fb.com   --dry-run=client  -o json >hellopod.json 
+   93  ls
+```
+
+### Understanding CNI 
+
+<img src="cni1.png">
+
+
