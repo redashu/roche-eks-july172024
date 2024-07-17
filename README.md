@@ -2,7 +2,7 @@
 
 ## aws accesslink
 
-[click_here]('https://delvexdrive.signin.aws.amazon.com/console')
+https://delvexdrive.signin.aws.amazon.com/console
 
 
 ### session timings
