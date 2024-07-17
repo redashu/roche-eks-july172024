@@ -134,3 +134,22 @@ Login Succeeded
 
 <img src="arch1.png">
 
+### setup of k8s 
+
+<img src="k8ssetup.png">
+
+### eks setup options
+
+<img src="ekss.png">
+
+
+### checking kubectl version 
+
+```
+ubectl  version --client 
+Client Version: v1.30.0
+Kustomize Version: v5.0.4-0.20230601165947-6ce0bf390ce3
+ humanfirmware@darwin  ~/roche-eks-july172024   master ±  
+
+ ```
+ 
