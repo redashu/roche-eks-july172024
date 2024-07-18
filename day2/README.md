@@ -224,3 +224,106 @@ rajesh-deploy-d894bf668-n7rrs   0/1     ContainerCreating   0          1s
 kubectl  expose  deployment  ashu-deploy   --type LoadBalancer --port 80 --name ashulb2  --dry-run=client -o yaml  >svc2.yaml 
 ```
 
+### Understanding ingress controller 
+
+<img src="ingress.png">
+
+### k8s thing
+
+<img src="ing1.png">
+
+### deploy ingress controller in EKS 
+
+```
+kubectl  create  -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/aws/deploy.yaml
+namespace/ingress-nginx created
+serviceaccount/ingress-nginx created
+serviceaccount/ingress-nginx-admission created
+role.rbac.authorization.k8s.io/ingress-nginx created
+role.rbac.authorization.k8s.io/ingress-nginx-admission created
+clusterrole.rbac.authorization.k8s.io/ingress-nginx created
+clusterrole.rbac.authorization.k8s.io/ingress-nginx-admission created
+rolebinding.rbac.authorization.k8s.io/ingress-nginx created
+rolebinding.rbac.authorization.k8s.io/ingress-nginx-admission created
+clusterrolebinding.rbac.authorization.k8s.io/ingress-nginx created
+clusterrolebinding.rbac.authorization.k8s.io/ingress-nginx-admission created
+configmap/ingress-nginx-controller created
+service/ingress-nginx-controller created
+service/ingress-nginx-controller-admission created
+deployment.apps/ingress-nginx-controller created
+job.batch/ingress-nginx-admission-create created
+job.batch/ingress-nginx-admission-patch created
+ingressclass.networking.k8s.io/nginx created
+validatingwebhookconfiguration.admissionregistration.k8s.io/ingress-nginx-admission created
+```
+### verify nginx ingress controller
+
+```
+kubectl   get  ns
+NAME              STATUS   AGE
+default           Active   3d2h
+ingress-nginx     Active   89s
+kube-node-lease   Active   3d2h
+kube-public       Active   3d2h
+kube-system       Active   3d2h
+monitoring        Active   3d1h
+[ashu@roche-client k8s-resources]$ kubectl   get  deploy -n  ingress-nginx
+NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+ingress-nginx-controller   1/1     1            1           99s
+[ashu@roche-client k8s-resources]$ kubectl   get  pod -n  ingress-nginx
+NAME                                       READY   STATUS      RESTARTS   AGE
+ingress-nginx-admission-create-bcrb9       0/1     Completed   0          106s
+ingress-nginx-admission-patch-z764j        0/1     Completed   2          106s
+ingress-nginx-controller-f4d6b8f76-f8qr8   1/1     Running     0          107s
+[ashu@roche-client k8s-resources]$ kubectl   get  svc  -n  ingress-nginx
+NAME                                 TYPE           CLUSTER-IP       EXTERNAL-IP                                                                     PORT(S)                      AGE
+ingress-nginx-controller             LoadBalancer   10.100.60.90     a64e2d60a40b04d868ed50fe24eda3b7-4ba65bad8a3641ca.elb.us-east-1.amazonaws.com   80:31520/TCP,443:31045/TCP   114s
+ingress-nginx-controller-admission   ClusterIP      10.100.205.207   <none>                                                                          443/TCP                      114s
+```
+
+### creating and settting defautl namespace
+
+```
+kubectl   create  ns  ashu-app
+namespace/ashu-app created
+[ashu@roche-client k8s-resources]$ kubectl config set-context --current --namespace=ashu-app
+Context "eks@delvex-cluster-new.us-east-1.eksctl.io" modified.
+[ashu@roche-client k8s-resources]$ 
+[ashu@roche-client k8s-resources]$ kubectl  get pods
+No resources found in ashu-app namespace.
+[ashu@roche-client k8s-resources]$ 
+
+```
+
+### checking default ns
+
+```
+kubectl config get-contexts
+CURRENT   NAME                                         CLUSTER                                  AUTHINFO                                     NAMESPACE
+*         eks@delvex-cluster-new.us-east-1.eksctl.io   delvex-cluster-new.us-east-1.eksctl.io   eks@delvex-cluster-new.us-east-1.eksctl.io   ashu-app
+[ashu@roche-client k8s-resources]$ 
+
+
+
+```
+
+### deploy a common.yml file 
+
+```
+kubectl  create -f common.yaml 
+deployment.apps/ashu-deploy created
+service/ashulb2 created
+[ashu@roche-client k8s-resources]$ kubectl  get  deploy
+NAME          READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-deploy   1/1     1            1           15s
+[ashu@roche-client k8s-resources]$ kubectl  get  pod
+NAME                           READY   STATUS    RESTARTS   AGE
+ashu-deploy-56bbcb766d-j8ddj   1/1     Running   0          21s
+[ashu@roche-client k8s-resources]$ kubectl  get  svc
+NAME      TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE
+ashulb2   ClusterIP   10.100.238.237   <none>        80/TCP    24s
+[ashu@roche-client k8s-resources]$ kubectl  get  ep
+NAME      ENDPOINTS         AGE
+ashulb2   192.168.6.70:80   27s
+```
+
