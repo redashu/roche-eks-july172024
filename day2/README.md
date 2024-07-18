@@ -327,3 +327,109 @@ NAME      ENDPOINTS         AGE
 ashulb2   192.168.6.70:80   27s
 ```
 
+## HPA in pods 
+
+<img src="hpa.png">
+
+### a more detailed understanding 
+
+<img src="mt.png">
+
+### deploy metric server 
+
+```
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+serviceaccount/metrics-server created
+clusterrole.rbac.authorization.k8s.io/system:aggregated-metrics-reader created
+clusterrole.rbac.authorization.k8s.io/system:metrics-server created
+rolebinding.rbac.authorization.k8s.io/metrics-server-auth-reader created
+clusterrolebinding.rbac.authorization.k8s.io/metrics-server:system:auth-delegator created
+clusterrolebinding.rbac.authorization.k8s.io/system:metrics-server created
+service/metrics-server created
+deployment.apps/metrics-server created
+apiservice.apiregistration.k8s.io/v1beta1.metrics.k8s.io created
+ humanfirmware@darwin  ~/Desktop/Tranings  
+ humanfirmware@darwin  ~/Desktop/Tranings  kubectl  get  po -n kube-system 
+NAME                                       READY   STATUS        RESTARTS   AGE
+aws-node-2xzc5                             2/2     Running       0          7h32m
+aws-node-9vwhd                             2/2     Running       0          7h31m
+aws-node-gb2qq                             2/2     Running       0          7h31m
+aws-node-jt7gh                             2/2     Running       0          2d5h
+aws-node-q7dl5                             2/2     Running       0          7h32m
+aws-node-rkvxn                             2/2     Running       0          4h41m
+calico-kube-controllers-6bdbc5dfcb-srgmw   0/1     Terminating   0          8h
+coredns-54d6f577c6-lrp5k                   1/1     Running       0          2d23h
+coredns-54d6f577c6-mr9r4                   1/1     Running       0          2d23h
+kube-proxy-449cf                           1/1     Running       0          7h31m
+kube-proxy-f6br4                           1/1     Running       0          7h31m
+kube-proxy-m9qg5                           1/1     Running       0          2d5h
+kube-proxy-nz7k7                           1/1     Running       0          7h32m
+kube-proxy-nzdwq                           1/1     Running       0          7h32m
+kube-proxy-pg5vl                           1/1     Running       0          4h41m
+metrics-server-6d94bc8694-wdnx9            0/1     Running       0          26s
+
+```
+
+### verify metrics server 
+
+```
+ 
+[ashu@roche-client k8s-resources]$ kubectl  get  pods
+NAME                           READY   STATUS    RESTARTS   AGE
+ashu-deploy-56bbcb766d-shzbt   1/1     Running   0          18m
+[ashu@roche-client k8s-resources]$ kubectl   top  pod ashu-deploy-56bbcb766d-shzbt 
+NAME                           CPU(cores)   MEMORY(bytes)   
+ashu-deploy-56bbcb766d-shzbt   0m           2Mi             
+[ashu@roche-client k8s-resources]$ 
+[ashu@roche-client k8s-resources]$ kubectl  get no
+NAME                             STATUS   ROLES    AGE     VERSION
+ip-192-168-114-19.ec2.internal   Ready    <none>   7h37m   v1.29.3-eks-ae9a62a
+ip-192-168-26-51.ec2.internal    Ready    <none>   7h37m   v1.29.3-eks-ae9a62a
+ip-192-168-39-122.ec2.internal   Ready    <none>   4h47m   v1.29.3-eks-ae9a62a
+ip-192-168-62-198.ec2.internal   Ready    <none>   7h37m   v1.29.3-eks-ae9a62a
+ip-192-168-77-87.ec2.internal    Ready    <none>   2d5h    v1.29.3-eks-ae9a62a
+ip-192-168-80-84.ec2.internal    Ready    <none>   7h37m   v1.29.3-eks-ae9a62a
+[ashu@roche-client k8s-resources]$ kubectl   top node ip-192-168-114-19.ec2.internal
+NAME                             CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%   
+ip-192-168-114-19.ec2.internal   40m          2%     662Mi           19%       
+[ashu@roche-client k8s-resources]$ kubectl  top 
+Display resource (CPU/memory) usage.
+
+ The top command allows you to see the resource consumption for nodes or pods.
+
+ This command requires Metrics Server to be correctly configured and working on the server.
+
+Available Commands:
+  node          Display resource (CPU/memory) usage of nodes
+  pod           Display resource (CPU/memory) usage of pods
+
+Usage:
+  kubectl top [flags] [options]
+
+Use "kubectl top <command> --help" for more information about a given command.
+Use "kubectl options" for a list of global command-line options (applies to all commands).
+```
+
+### hpa 
+
+```
+  230  kubectl   get  deploy
+  231  kubectl   autoscale  deployment  ashu-deploy  --cpu-percent 70 --min=2 --max=10 --dry-run=client -o yaml 
+  232  kubectl   autoscale  deployment  ashu-deploy  --cpu-percent 70 --min=2 --max=10 --dry-run=client -o yaml  >hpa.yml
+  233  kubectl   create -f hpa.yml 
+  234  kubectl   get  deploy
+  235  history 
+[ashu@roche-client k8s-resources]$ 
+[ashu@roche-client k8s-resources]$ 
+[ashu@roche-client k8s-resources]$ 
+[ashu@roche-client k8s-resources]$ 
+[ashu@roche-client k8s-resources]$ 
+[ashu@roche-client k8s-resources]$ kubectl  get hpa
+NAME          REFERENCE                TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+ashu-deploy   Deployment/ashu-deploy   0%/70%    2         10        2          56s
+[ashu@roche-client k8s-resources]$ 
+```
+
+
+
+
