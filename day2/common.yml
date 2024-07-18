@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-deploy
+  name: ashu-deploy # name of deployment 
+  namespace: ashu-app 
+spec:
+  replicas: 1 # number of pods you want to create 
+  selector:
+    matchLabels:
+      app: ashu-deploy
+  strategy: {} # app upgrade strategy -- rollings updates 
+  template: # pod info tempalte 
+    metadata:
+      creationTimestamp: null
+      labels: # label of pods 
+        app: ashu-deploy
+    spec:
+      containers:
+      - image: docker.io/dockerashu/ashuroche:nginxappv1
+        name: ashuroche
+        ports:
+        - containerPort: 80
+        resources: {}
+status: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-deploy
+  name: ashulb2
+  namespace: ashu-app # namespace info 
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: ashu-deploy
+  type: ClusterIP  # type of service 
+status:
+  loadBalancer: {}
