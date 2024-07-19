@@ -186,4 +186,139 @@ ashudblb   ClusterIP   10.100.188.188   <none>        3306/TCP   3s
 NAME       ENDPOINTS            AGE
 ashudblb   192.168.34.91:3306   7s
 ```
+## flask webapp deploy 
+
+### creating deployment 
+
+```
+kubectl create deployment  ashu-flaskapp --image=public.ecr.aws/h7s5d3t1/rocheflask:ashuappv1  --port 5000 --dry-run=client -o yaml >webapp.yaml 
+```
+
+### updating yaml 
+
+```
+
+```
+
+## CoreDNS 
+
+<img src="core.png">
+
+### creating configmap 
+
+```
+kubectl  create configmap  ashu-db-svc  --from-literal  dbconnect=ashudblb  --dry-run=client -o yaml  
+apiVersion: v1
+data:
+  dbconnect: ashudblb
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: ashu-db-svc
+[ashu@roche-client ashu-pythonfask]$ kubectl  create configmap  ashu-db-svc  --from-literal  dbconnect=ashudblb  --dry-run=client -o yaml   >dbnamecm.yaml 
+[ashu@roche-client ashu-pythonfask]$ kubectl  create  -f dbnamecm.yaml 
+configmap/ashu-db-svc created
+[ashu@roche-client ashu-pythonfask]$ 
+[ashu@roche-client ashu-pythonfask]$ 
+[ashu@roche-client ashu-pythonfask]$ kubectl  get  cm 
+NAME               DATA   AGE
+ashu-db-svc        1      5s
+kube-root-ca.crt   1      23h
+[ashu@roche-client ashu-pythonfask]$ 
+
+
+```
+### creating secret for flask connect
+
+```
+ kubectl  create secret generic  flask-db-cred  --from-literal MYSQL_USER=root --from-literal MYSQL_PASSWORD=AshuExample@12345  --dry-run=client -o yaml 
+apiVersion: v1
+data:
+  MYSQL_PASSWORD: QXNodUV4YW1wbGVAMTIzNDU=
+  MYSQL_USER: cm9vdA==
+kind: Secret
+metadata:
+  creationTimestamp: null
+  name: flask-db-cred
+[ashu@roche-client ashu-pythonfask]$ kubectl  create secret generic  flask-db-cred  --from-literal MYSQL_USER=root --from-literal MYSQL_PASSWORD=AshuExample@12345  --dry-run=client -o yaml  >flask_db_secret.yaml 
+[ashu@roche-client ashu-pythonfask]$ kubectl  create -f flask_db_secret.yaml 
+secret/flask-db-cred created
+[ashu@roche-client ashu-pythonfask]$ kubectl  get secrets 
+NAME               TYPE     DATA   AGE
+ashudb-root-cred   Opaque   1      132m
+flask-db-cred      Opaque   2      6s
+```
+
+### final flask manifest
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-flaskapp
+  name: ashu-flaskapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashu-flaskapp
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashu-flaskapp
+    spec:
+      containers:
+      - image: public.ecr.aws/h7s5d3t1/rocheflask:ashuappv1
+        name: rocheflask
+        ports:
+        - containerPort: 5000
+        envFrom:
+        - secretRef:
+            name: flask-db-cred
+        env: 
+        - name: MYSQL_HOST # targret db host ip / DNS name 
+          #value: ashudblb.ashu-app.svc.cluster.local
+          valueFrom: # calling value 
+            configMapKeyRef: # from configmap 
+              name: ashu-db-svc # name of cm
+              key: dbconnect # key of cm 
+        resources:
+          limits:
+            cpu: 100m
+            memory: 150M 
+status: {}
+
+```
+
+### 
+
+```
+[ashu@roche-client ashu-pythonfask]$ kubectl  create -f webapp.yaml 
+deployment.apps/ashu-flaskapp created
+[ashu@roche-client ashu-pythonfask]$ kubectl  get  deploy 
+NAME            READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-db         1/1     1            1           137m
+ashu-flaskapp   1/1     1            1           46s
+[ashu@roche-client ashu-pythonfask]$ kubectl  get  pod
+NAME                             READY   STATUS    RESTARTS   AGE
+ashu-db-8659dbd969-85s2m         1/1     Running   0          137m
+ashu-flaskapp-6c56c68b88-d9bfl   1/1     Running   0          50s
+[ashu@roche-client ashu-pythonfask]$ kubectl  get  cm
+NAME               DATA   AGE
+ashu-db-svc        1      21m
+kube-root-ca.crt   1      24h
+[ashu@roche-client ashu-pythonfask]$ kubectl  get  secret
+NAME               TYPE     DATA   AGE
+ashudb-root-cred   Opaque   1      146m
+flask-db-cred      Opaque   2      13m
+[ashu@roche-client ashu-pythonfask]$ kubectl  get  svc
+NAME       TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+ashudblb   ClusterIP   10.100.188.188   <none>        3306/TCP   120m
+[ashu@roche-client ashu-pythonfask]$ 
+```
+
 
