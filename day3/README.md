@@ -134,3 +134,56 @@ ashudb-root-cred   Opaque   1      4s
 [ashu@roche-client ashu-pythonfask]$ 
 
 ```
+
+### 
+
+```
+ashu@roche-client ashu-pythonfask]$ kubectl  exec -it  ashu-db-8659dbd969-85s2m -- bash 
+bash-5.1# 
+bash-5.1# mysql -u root -pAshuExample@12345
+mysql: [Warning] Using a password on the command line interface can be insecure.
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 8.0.38 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2024, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| ashudb             |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+5 rows in set (0.01 sec)
+
+mysql> 
+
+```
+
+### creating service for db pod 
+
+```
+kubectl  get deploy
+NAME      READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-db   1/1     1            1           16m
+[ashu@roche-client ashu-pythonfask]$ kubectl expose deployment ashu-db --port 3306 --name ashudblb --dry-run=client -o yaml  >dbsvc.yaml 
+[ashu@roche-client ashu-pythonfask]$ kubectl create -f dbsvc.yaml 
+service/ashudblb created
+[ashu@roche-client ashu-pythonfask]$ kubectl  get svc
+NAME       TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+ashudblb   ClusterIP   10.100.188.188   <none>        3306/TCP   3s
+[ashu@roche-client ashu-pythonfask]$ kubectl  get ep
+NAME       ENDPOINTS            AGE
+ashudblb   192.168.34.91:3306   7s
+```
+
