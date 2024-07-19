@@ -321,4 +321,69 @@ ashudblb   ClusterIP   10.100.188.188   <none>        3306/TCP   120m
 [ashu@roche-client ashu-pythonfask]$ 
 ```
 
+### creating service 
+
+```
+kubectl  expose deployment ashu-flaskapp  --port 80 --target-port 5000 --name ashuflasklb --dry-run=client -o yaml  >flasksvc.yml 
+[ashu@roche-client ashu-pythonfask]$ 
+[ashu@roche-client ashu-pythonfask]$ 
+[ashu@roche-client ashu-pythonfask]$ kubectl  create -f flasksvc.yml 
+service/ashuflasklb created
+[ashu@roche-client ashu-pythonfask]$ 
+[ashu@roche-client ashu-pythonfask]$ kubectl get svc
+NAME          TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+ashudblb      ClusterIP   10.100.188.188   <none>        3306/TCP   129m
+ashuflasklb   ClusterIP   10.100.164.155   <none>        80/TCP     8s
+[ashu@roche-client ashu-pythonfask]$ kubectl get ep
+NAME          ENDPOINTS            AGE
+ashudblb      192.168.34.91:3306   129m
+ashuflasklb   192.168.10.42:5000   12s
+[ashu@roche-client ashu-pythonfask]$ 
+
+```
+
+### final check 
+
+```
+kubectl  get  deploy
+NAME            READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-db         1/1     1            1           155m
+ashu-flaskapp   1/1     1            1           18m
+[ashu@roche-client ashu-pythonfask]$ kubectl  get  secrets
+NAME               TYPE     DATA   AGE
+ashudb-root-cred   Opaque   1      163m
+flask-db-cred      Opaque   2      31m
+[ashu@roche-client ashu-pythonfask]$ kubectl  get  cm
+NAME               DATA   AGE
+ashu-db-svc        1      39m
+kube-root-ca.crt   1      24h
+[ashu@roche-client ashu-pythonfask]$ kubectl  get pod
+NAME                             READY   STATUS    RESTARTS   AGE
+ashu-db-8659dbd969-85s2m         1/1     Running   0          155m
+ashu-flaskapp-6c56c68b88-d9bfl   1/1     Running   0          18m
+[ashu@roche-client ashu-pythonfask]$ kubectl  get svc
+NAME          TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+ashudblb      ClusterIP   10.100.188.188   <none>        3306/TCP   138m
+ashuflasklb   ClusterIP   10.100.164.155   <none>        80/TCP     9m1s
+[ashu@roche-client ashu-pythonfask]$ kubectl  get ing
+NAME                           CLASS   HOSTS                 ADDRESS   PORTS   AGE
+minimal-ingress-ashu-routing   nginx   ashutoshh.delvex.io             80      28s
+[ashu@roche-client ashu-pythonfask]$ 
+
+```
+
+### ReadinessProbe in k8s -- handle by Kubelet 
+
+<img src="live.png">
+
+
+### more info 
+
+<img src="more.png">
+
+### dashboard in k8s 
+
+<img src="cncf.png">
+
+
 
