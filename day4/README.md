@@ -214,5 +214,151 @@ mysql> show databases;
 6 rows in set (0.01 sec)
 ```
 
+### Creating PV and PVC 
+
+<img src="pv1.png">
+
+## PV yaml
+
+```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ashu-pv1 
+spec:
+  storageClassName: manual 
+  capacity:
+    storage: 10Gi # please use 1 to 10GB space 
+  accessModes:
+  - ReadWriteOnce 
+  hostPath: # we can use EBS , EFS , nfs etc 
+    path: /ashu/dbdatanew
+    type: DirectoryOrCreate 
+```
+
+### creating it 
+
+```
+[ashu@roche-client ashu-pythonfask]$ kubectl  create -f ashu-pv.yaml 
+persistentvolume/ashu-pv1 created
+[ashu@roche-client ashu-pythonfask]$ kubectl   get  pv
+NAME       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM   STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE
+ashu-pv1   10Gi       RWO            Retain           Available           manual         <unset>                          5s
+[ashu@roche-client ashu-pythonfask]$ 
+
+
+```
+
+## Understanding Helm 
+
+<img src="helm.png">
+
+### adding repo to client machine 
+
+```
+[ashu@roche-client ashu-project]$ helm repo add ashu-bitnami   https://charts.bitnami.com/bitnami
+"ashu-bitnami" has been added to your repositories
+[ashu@roche-client ashu-project]$ 
+[ashu@roche-client ashu-project]$ 
+[ashu@roche-client ashu-project]$ helm repo ls
+NAME            URL                               
+ashu-bitnami    https://charts.bitnami.com/bitnami
+[ashu@roche-client ashu-project]$ 
+
+
+```
+
+### searching it 
+
+```
+[ashu@roche-client ashu-project]$ helm search repo  nginx 
+
+NAME                                    CHART VERSION   APP VERSION     DESCRIPTION                                       
+ashu-bitnami/nginx                      18.1.5          1.27.0          NGINX Open Source is a web server that can be a...
+ashu-bitnami/nginx-ingress-controller   11.3.15         1.11.1          NGINX Ingress Controller is an Ingress controll...
+ashu-bitnami/nginx-intel                2.1.15          0.4.9           DEPRECATED NGINX Open Source for Intel is a lig...
+[ashu@roche-client ashu-project]$ 
+[ashu@roche-client ashu-project]$ 
+
+```
+
+### deploy chart
+
+```
+ helm install  ashu-webapp   ashu-bitnami/nginx   
+NAME: ashu-webapp
+LAST DEPLOYED: Mon Jul 22 10:26:32 2024
+NAMESPACE: ashu-app
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+```
+
+
+### pulling chart
+
+```
+ helm search repo nginx 
+NAME                                    CHART VERSION   APP VERSION     DESCRIPTION                                       
+ashu-bitnami/nginx                      18.1.5          1.27.0          NGINX Open Source is a web server that can be a...
+ashu-bitnami/nginx-ingress-controller   11.3.15         1.11.1          NGINX Ingress Controller is an Ingress controll...
+ashu-bitnami/nginx-intel                2.1.15          0.4.9           DEPRECATED NGINX Open Source for Intel is a lig...
+[ashu@roche-client ashu-project]$ 
+[ashu@roche-client ashu-project]$ 
+[ashu@roche-client ashu-project]$ helm  pull  ashu-bitnami/nginx   
+[ashu@roche-client ashu-project]$ ls
+ashu-pythonfask  config  html-sample-app  java-springboot  javaapp  k8s-resources  mytasks  nginx-18.1.5.tgz  pythonapp  web.yml  webapp
+[ashu@roche-client ashu-project]$ 
+
+
+
+```
+
+### decompression chart
+
+```
+ls
+ashu-pythonfask  config  html-sample-app  java-springboot  javaapp  k8s-resources  mytasks  nginx-18.1.5.tgz  pythonapp  web.yml  webapp
+[ashu@roche-client ashu-project]$ tar xvzf  nginx-18.1.5.tgz 
+nginx/Chart.yaml
+nginx/Chart.lock
+nginx/values.yaml
+nginx/values.schema.json
+nginx/templates/NOTES.txt
+nginx/templates/_helpers.tpl
+```
+### updating 
+
+```
+548   helm install  ashu-webapp   ashu-bitnami/nginx    --values values.yaml 
+  549  
+  550  helm ls
+  551  kubectl  get  svc
+  552  history 
+  553  helm uninstall ashu-webapp
+  554  history 
+  555  helm install  ashu-webapp   ashu-bitnami/nginx  --set service.type=ClusterIP
+  556  history 
+[ashu@roche-client ashu-project]$ 
+[ashu@roche-client ashu-project]$ 
+[ashu@roche-client ashu-project]$ 
+[ashu@roche-client ashu-project]$ 
+[ashu@roche-client ashu-project]$ 
+[ashu@roche-client ashu-project]$ 
+[ashu@roche-client ashu-project]$ 
+[ashu@roche-client ashu-project]$ 
+[ashu@roche-client ashu-project]$ 
+[ashu@roche-client ashu-project]$ 
+[ashu@roche-client ashu-project]$ kubectl  get svc
+NAME                TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+ashu-webapp-nginx   ClusterIP   10.100.222.172   <none>        80/TCP,443/TCP   33s
+[ashu@roche-client ashu-project]$ 
+[ashu@roche-client ashu-project]$ 
+[ashu@roche-client ashu-project]$ 
+[ashu@roche-client ashu-project]$  helm uninstall ashu-webapp
+release "ashu-webapp" uninstalled
+
+```
+
 
 
