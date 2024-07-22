@@ -53,3 +53,166 @@ configmap "seccomp-profile" deleted
 
 <img src="csi.png">
 
+### more info about storage 
+
+<img src="st1.png">
+
+## Deploykent of DB using secret and hostpath volume 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-db
+  name: ashu-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashu-db
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashu-db
+    spec:
+      nodeName: ip-192-168-124-158.ec2.internal # static scheduling 
+      volumes: # creating volume / storage
+      - name: ashuvol1 
+        hostPath: # storage gonna come from worker node where pod will be there
+          path: /ashu/dbdata
+          type: DirectoryOrCreate 
+      containers:
+      - image: mysql:8.0
+        name: mysql
+        ports:
+        - containerPort: 3306
+        env: # to supply env in container image
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom: 
+            secretKeyRef:
+              name: ashudb-root-cred
+              key: ashurootKey
+        - name: MYSQL_DATABASE
+          value: ashudb # this database will be created 
+        volumeMounts: # using volume inside container
+        - name: ashuvol1 # using volume 
+          mountPath: /var/lib/mysql/ 
+        resources: 
+          limits:
+            memory: 800M
+            cpu: 700m 
+status: {}
+
+```
+
+### deploy 
+
+```
+[ashu@roche-client ashu-pythonfask]$ kubectl  create -f  rootcred.yaml  ^C
+[ashu@roche-client ashu-pythonfask]$ 
+[ashu@roche-client ashu-pythonfask]$ kubectl  create -f db.yaml  ^C
+[ashu@roche-client ashu-pythonfask]$ 
+[ashu@roche-client ashu-pythonfask]$ kubectl  get secrets
+NAME               TYPE     DATA   AGE
+ashudb-root-cred   Opaque   1      2m4s
+[ashu@roche-client ashu-pythonfask]$ kubectl  get deploy
+NAME      READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-db   1/1     1            1           79s
+[ashu@roche-client ashu-pythonfask]$ kubectl  get po -o wide
+NAME                       READY   STATUS    RESTARTS   AGE   IP                NODE                              NOMINATED NODE   READINESS GATES
+ashu-db-6f69576898-dbhg7   1/1     Running   0          87s   192.168.101.246   ip-192-168-124-158.ec2.internal   <none>           <none>
+[ashu@roche-client ashu-pythonfask]$ 
+
+
+```
+
+### access mysql db 
+
+```
+[ashu@roche-client ashu-pythonfask]$ kubectl  get secrets
+NAME               TYPE     DATA   AGE
+ashudb-root-cred   Opaque   1      3m45s
+[ashu@roche-client ashu-pythonfask]$ kubectl  get secrets -o yaml 
+apiVersion: v1
+items:
+- apiVersion: v1
+  data:
+    ashurootKey: QXNodUV4YW1wbGVAMTIzNDU=
+  kind: Secret
+  metadata:
+    creationTimestamp: "2024-07-22T07:21:03Z"
+    name: ashudb-root-cred
+    namespace: ashu-app
+    resourceVersion: "2049618"
+    uid: 7702e207-42c6-4d4b-a46e-ca43891fe3b1
+  type: Opaque
+kind: List
+metadata:
+  resourceVersion: ""
+[ashu@roche-client ashu-pythonfask]$ base64 -d 
+QXNodUV4YW1wbGVAMTIzNDU=
+AshuExample@12345[ashu@roche-client ashu-pythonfask]$ kubectl  get po 
+NAME                       READY   STATUS    RESTARTS   AGE
+ashu-db-6f69576898-dbhg7   1/1     Running   0          3m53s
+[ashu@roche-client ashu-pythonfask]$ kubectl  exec -it ashu-db-6f69576898-dbhg7 -- bash  
+bash-5.1# mysql -u root -pAshuExample@12345
+mysql: [Warning] Using a password on the command line interface can be insecure.
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 8.0.38 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2024, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> 
+```
+### creating a database
+
+```
+[ashu@roche-client ashu-pythonfask]$ kubectl  get po 
+NAME                       READY   STATUS    RESTARTS   AGE
+ashu-db-6f69576898-dbhg7   1/1     Running   0          5m30s
+[ashu@roche-client ashu-pythonfask]$ kubectl  exec -it ashu-db-6f69576898-dbhg7 -- bash  
+bash-5.1# 
+bash-5.1# mysql -u root -pAshuExample@12345
+mysql: [Warning] Using a password on the command line interface can be insecure.
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 9
+Server version: 8.0.38 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2024, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> create database ashurochedb;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| ashudb             |
+| ashurochedb        |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+6 rows in set (0.01 sec)
+```
+
+
+
