@@ -49,3 +49,7 @@ configmap "seccomp-profile" deleted
 
 ```
 
+### Understanding CSI 
+
+<img src="csi.png">
+
