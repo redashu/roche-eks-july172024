@@ -47,3 +47,19 @@
   12. Now copy any text file from Your client machine to the running pod 
   13. File location inside RUnning pod must be /tmp 
 ```
+
+### Deployment SPlunk 
+
+```
+  1. Create a yaml file named  <yourname>splunk.yaml
+  2. namespace called  kube-ashu and all the must be inside in this namespace only
+  3. use splunk/splunk:latest image from docker hub  to create deployment 
+  4. required ENV variable must be stored in ConfigMap  
+  5. Required password must be stored in Secret 
+  6. replica count 1 
+  7. create service of Nodeport  type named <yourname>svc 
+  8. access this from web browser 
+  9. Note : default username of splunk is admin and splunk default port number is 8000 
+  
+  
+```
