@@ -68,6 +68,68 @@ ashu-pod-armor-policy   14s
 [ashu@roche-client kubearmor-test]$ 
 
 ```
+### pod has k8s token access by default 
+
+```
+[ashu@roche-client kubearmor-test]$ kubectl exec -it ashupod1 -- bash 
+root@ashupod1:/# 
+root@ashupod1:/# 
+root@ashupod1:/# 
+root@ashupod1:/# cd  /run/
+root@ashupod1:/run# ls
+lock  nginx.pid  secrets
+root@ashupod1:/run# cd secrets/
+root@ashupod1:/run/secrets# ls
+kubernetes.io
+root@ashupod1:/run/secrets# cd kubernetes.io/
+root@ashupod1:/run/secrets/kubernetes.io# ls
+serviceaccount
+root@ashupod1:/run/secrets/kubernetes.io# cd serviceaccount/
+root@ashupod1:/run/secrets/kubernetes.io/serviceaccount# ls
+ca.crt  namespace  token
+root@ashupod1:/run/secrets/kubernetes.io/serviceaccount# cat token 
+eyJhbGciOiJSUzI1NiIsImtpZCI6ImFmNGU0ZGY3ZTVhMzljNWU2NWYyZmUzZjllZjAzOTAxMGYzODI5MjIifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjIl0sImV4cCI6MTc1MzI1MjA1MywiaWF0IjoxNzIxNzE2MDUzLCJpc3MiOiJodHRwczovL29pZGMuZWtzLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tL2lkL0Q2RUEwNzI3QzNBNkI5MUI0Qzc3MTkzNUJDQkZFRTA2Iiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJhc2h1LWFwcCIsInBvZCI6eyJuYW1lIjoiYXNodXBvZDEiLCJ1aWQiOiJkZGFhYjlmNC1kM2M2LTRmMGMtYTk1Yi1hNGMzOWRmZGUzMTgifSwic2VydmljZWFjY291bnQiOnsibmFtZSI6ImRlZmF1bHQiLCJ1aWQiOiJlMmEzZDQyYy1mZWI0LTQ0OGItOTk1Yi02ZGUwOWJlNjI4M2YifSwid2FybmFmdGVyIjoxNzIxNzE5NjYwfSwibmJmIjoxNzIxNzE2MDUzLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6YXNodS1hcHA6ZGVmYXVsdCJ9.nkYPnkRs6Tz65kqt99fB_JggHmg0nPwqFHGv6s-Larg_BvQvubIdTYagIw3khtrGN-VhjO5I3uQsckYBLrObZ7ViSrRABkzR_9Q0Z6Acgb1K81R6Wb4nALL_SclsZAHNCI-c6JkamW8-gBqlaweKTgCRuHBu0ySw3pnmYF-Y2JkGKj56bNa-q0g3lS_t4GVXULQyC-LCNIMuiFPUqyBEe3w1Ft4znzYbLVOLvgnKlltb-Zr7rONkJ3WpFwl8v2dXfxA8UA6uhZqJmkS2_gJDKZHtac51zMGBy59kQ3NzJr6OjWSzQ0ancHQmXRHKtvfieAqu_2g1unklqQAuB-OPrgroot@ashupod1:/run/secrets/kubernetes.io/serviceaccount# 
+```
+
+### k8s security 
+
+## IAM 
+
+<img src="iam.png">
+
+
+### RBAC in EKS 
+
+<img src="rbac.png">
+
+
+### clusterrolebinding
+
+```
+  kubectl  get serviceaccount -n kubernetes-dashboard
+ 5551  kubectl  get serviceaccount -
+ 5552  kubectl  get serviceaccount 
+ 5553  kubectl  create ns  okey
+ 5554  kubectl get sa -n okey
+ 5555  kubectl get secret -n okey
+ 5556  kubectl  get serviceaccount -n kubernetes-dashboard
+ 5557  kubectl  create token kubernetes-dashboard  -n kubernetes-dashboard 
+ 5558  kubectl  create token default  -n kubernetes-dashboard 
+ 5559  kubectl  create token kubernetes-dashboard  -n kubernetes-dashboard 
+ 5560  kubectl  get serviceaccount -n kubernetes-dashboard
+ 5561  kubectl  get clusterroles 
+ 5562  kubectl  get clusterroles   | grep -i admin 
+ 5563  kubectl   create clusterrolebinding  -h
+ 5564  kubectl create clusterrolebinding  ashu-dashobardbind   --clusterrole cluster-admin --serviceaccount=kubernetes-dashboard:default 
+ 5565  kubectl create clusterrolebinding  ashu-dashobardbind   --clusterrole cluster-admin --serviceaccount=kubernetes-dashboard:default  --dry-runc=client -o yaml 
+ 5566  kubectl create clusterrolebinding  ashu-dashobardbind   --clusterrole cluster-admin --serviceaccount=kubernetes-dashboard:default  --dry-run=client -o yaml 
+ 5567  kubectl create clusterrolebinding  ashu-dashobardbind   --clusterrole cluster-admin --serviceaccount=kubernetes-dashboard:default  --dry-run=client -o yaml >dashbaord_full-access.yaml 
+ 5568  kubectl create -f dashbaord_full-access.yaml
+ 5569  kubectl get clusterrolebindings | grep -i ashu
+ 5570  history
+ 5571  kubectl  create token default  -n kubernetes-dashboard 
+
+```
 
 
 
