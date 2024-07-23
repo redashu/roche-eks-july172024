@@ -1,0 +1,21 @@
+alertmanager:
+  alertmanagerSpec:
+    config:
+      global:
+        smtp_smarthost: 'smtp.gmail.com:587'
+        smtp_from: 'learntechbyme@gmail.com'
+        smtp_auth_username: 'learntechbyme@gmail.com'
+        smtp_auth_password: 'sdfsdfds683495jhdshjfk'
+      route:
+        group_by: ['alertname']
+        receiver: 'email-notifications'
+        routes:
+        - match:
+            alertname: KubePodCrashLooping
+          receiver: 'email-notifications'
+      receivers:
+        - name: 'email-notifications'
+          email_configs:
+            - to: 'ashutoshhsingh93@gmail.com'
+              send_resolved: true
+

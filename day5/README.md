@@ -222,5 +222,76 @@ clusterrolebinding.rbac.authorization.k8s.io/ashu-clsrole-bind1 created
 
 ```
 
+### aws-auth file 
+
+```
+apiVersion: v1
+data:
+  mapRoles: |
+    - groups:
+      - system:bootstrappers
+      - system:nodes
+      - system:node-proxier
+      rolearn: arn:aws:iam::992382386705:role/eksctl-delvex-cluster-new-c-FargatePodExecutionRole-JEJsk8nvnOHK
+      username: system:node:{{SessionName}}
+  mapUsers: |
+    - userarn: arn:aws:iam::992382386705:user/developer
+      username: developer
+      groups:
+      - ashu-reader
+    - userarn: arn:aws:iam::992382386705:user/roche-user
+      username: roche-user
+      groups:
+      - ashu-reader
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2024-07-22T01:43:44Z"
+  name: aws-auth
+  namespace: kube-system
+  resourceVersion: "2565072"
+  uid: 91b9bdd8-3a8f-4bec-aa84-65e27a0a301a
+```
+
+### getting aws kubeconfig creds
+
+```
+ aws eks update-kubeconfig --name delvex-cluster-new --profile  roche-developer 
+```
+
+
+
+
+### installing prometheus stack using helm 
+
+```
+ helm install prometheus prometheus-community/kube-prometheus-stack --namespace monitoring
+ ====>
+ helm ls  -n monitoring             
+NAME      	NAMESPACE 	REVISION	UPDATED                             	STATUS  	CHART                       	APP VERSION
+prometheus	monitoring	1       	2024-07-22 22:24:17.917017 +0530 IST	deployed	kube-prometheus-stack-58.1.3	v0.73.1    
+ humanfirmware@darwin  ~  
+
+
+```
+
+### grafana 
+
+```
+kubectl  get  po  -n monitoring 
+NAME                                                     READY   STATUS    RESTARTS   AGE
+alertmanager-prometheus-kube-prometheus-alertmanager-0   2/2     Running   0          17h
+prometheus-grafana-d5679d5d7-k9mxj                       3/3     Running   0          17h
+prometheus-kube-prometheus-operator-db64fb7cd-6698t      1/1     Running   0          17h
+prometheus-kube-state-metrics-c8f945cbb-w2hwr            1/1     Running   0          17h
+prometheus-prometheus-kube-prometheus-prometheus-0       2/2     Running   0          17h
+prometheus-prometheus-node-exporter-5czf4                1/1     Running   0          17h
+prometheus-prometheus-node-exporter-dfpgt                1/1     Running   0          8h
+prometheus-prometheus-node-exporter-fjcnq                1/1     Running   0          8h
+prometheus-prometheus-node-exporter-hth75                1/1     Running   0          17h
+prometheus-prometheus-node-exporter-s27kj                1/1     Running   0          8h
+prometheus-prometheus-node-exporter-tw22q                1/1     Running   0          17h
+prometheus-prometheus-node-exporter-xfhc6                1/1     Running   0          8h
+prometheus-prometheus-node-exporter-xn8nd                1/1     Running   0          8h
+```
 
 

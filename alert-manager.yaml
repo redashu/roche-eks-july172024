@@ -1,0 +1,20 @@
+global:
+  smtp_smarthost: 'smtp.gmail.com:587'
+  smtp_from: 'learntechbyme@gmail.com'
+  smtp_auth_username: 'learntechbyme@gmail.com'
+  smtp_auth_password: 'your-smtp-password'
+  smtp_require_tls: true
+
+route:
+  receiver: 'email'
+
+receivers:
+  - name: 'email'
+    email_configs:
+      - to: 'ashutoshhsingh93@gmail.com'
+        from: 'alertmanager@example.com'
+        smarthost: 'smtp.example.com:587'
+        auth_username: 'your-smtp-username'
+        auth_password: 'your-smtp-password'
+        require_tls: true
+
