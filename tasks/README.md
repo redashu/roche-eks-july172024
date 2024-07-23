@@ -63,3 +63,25 @@
   
   
 ```
+
+### POD and service task 
+
+```
+  1. Create two Pods <yourname>pod1 and <yourname>Pod2
+  2. In POd1 you can use busybox docker image 
+  3. choose whatever parent process for pod1 container 
+  4. Pod1 Restart Policy must be Never
+  5. No label required to Pod1 
+  
+  6. IN Pod2 use nginx docker image 
+  7. no need of parent process in pod2 container as it is already having
+  8. Pod2 label will be delvex: <yourname>p11
+  9. containerport is 80 
+  10. Create a Service for Pod2 named <yourname>svc2 of ClusterIP type 
+  11. Service must find Pod2 using labels 
+  
+  12. From Pod1 access Pod2 default web application page using Service IP 
+  13. store the Output of default web page in Pod1 /tmp/mypage.txt 
+
+  ```
+  

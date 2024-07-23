@@ -360,5 +360,74 @@ release "ashu-webapp" uninstalled
 
 ```
 
+## Creating dashbaord toekn 
+
+```
+kubectl  get  deploy -n kubernetes-dashboard 
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+dashboard-metrics-scraper   1/1     1            1           2d23h
+kubernetes-dashboard        1/1     1            1           2d23h
+ humanfirmware@darwin  ~/Desktop  kubectl  get  sa   -n kubernetes-dashboard
+NAME                   SECRETS   AGE
+default                0         2d23h
+kubernetes-dashboard   0         2d23h
+ humanfirmware@darwin  ~/Desktop  kubectl  create token kubernetes-dashboard  -n  kubernetes-dashboard 
+eyJhbGciOiJSUzI1NiIsImtpZCI6ImFmNGU0ZGY3ZTVhMzljNWU2NWYyZmUzZjllZjAzOTAxMGYzODI5MjIifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjIl0sImV4cCI6MTcyMTY1MDkxMCwiaWF0IjoxNzIxNjQ3MzEwLCJpc3MiOiJodHRwczovL29pZGMuZWtzLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tL2lkL0Q2RUEwNzI3QzNBNkI5MUI0Qzc3MTkzNUJDQkZFRTA2Iiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2F
+```
+
+## Creating helm chart 
+
+```
+helm  create  ashu-flask-webapp
+Creating ashu-flask-webapp
+[ashu@roche-client ashu-project]$ 
+[ashu@roche-client ashu-project]$ tree  ashu-flask-webapp/
+ashu-flask-webapp/
+├── Chart.yaml
+├── charts
+├── templates
+│   ├── NOTES.txt
+│   ├── _helpers.tpl
+│   ├── deployment.yaml
+│   ├── hpa.yaml
+│   ├── ingress.yaml
+│   ├── service.yaml
+│   ├── serviceaccount.yaml
+│   └── tests
+│       └── test-connection.yaml
+└── values.yaml
+
+3 directories, 10 files
+```
+
+### values.yaml
+
+```
+
+```
+
+### deploy 
+
+```
+
+[ashu@roche-client ashu-project]$ helm install ashu-webapppp  ./ashu-flask-webapp/
+NAME: ashu-webapppp
+LAST DEPLOYED: Mon Jul 22 11:43:02 2024
+NAMESPACE: ashu-app
+STATUS: deployed
+REVISION: 1
+NOTES:
+1. Get the application URL by running these commands:
+  export POD_NAME=$(kubectl get pods --namespace ashu-app -l "app.kubernetes.io/name=ashu-flask-webapp,app.kubernetes.io/instance=ashu-webapppp" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace ashu-app $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl --namespace ashu-app port-forward $POD_NAME 8080:$CONTAINER_PORT
+[ashu@roche-client ashu-project]$ 
+
+```
+
+
+
+
 
 
