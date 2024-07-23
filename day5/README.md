@@ -131,5 +131,96 @@ eyJhbGciOiJSUzI1NiIsImtpZCI6ImFmNGU0ZGY3ZTVhMzljNWU2NWYyZmUzZjllZjAzOTAxMGYzODI5
 
 ```
 
+### creating service account 
+
+```
+[ashu@roche-client kubearmor-test]$ ls
+kubearm.yaml
+[ashu@roche-client kubearmor-test]$ kubectl   create  serviceaccount ashu-sa --dry-run=client -o yaml 
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  creationTimestamp: null
+  name: ashu-sa
+[ashu@roche-client kubearmor-test]$ kubectl get sa
+NAME      SECRETS   AGE
+default   0         4d23h
+[ashu@roche-client kubearmor-test]$ kubectl   create  serviceaccount ashu-sa --dry-run=client -o yaml  >sa1.yaml 
+[ashu@roche-client kubearmor-test]$ kubectl create -f sa1.yaml 
+serviceaccount/ashu-sa created
+[ashu@roche-client kubearmor-test]$ kubectl  get sa
+NAME      SECRETS   AGE
+ashu-sa   0         21s
+default   0         4d23h
+[ashu@roche-client kubearmor-test]$ 
+```
+
+### creting pod read role 
+
+```
+[ashu@roche-client kubearmor-test]$ kubectl create  role  ashu-pod-readRole --verb=get --verb=list --verb=watch --resource=pods  --dry-run=client -o yaml 
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  name: ashu-pod-readRole
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+[ashu@roche-client kubearmor-test]$ kubectl create  role  ashu-pod-readRole --verb=get --verb=list --verb=watch --resource=pods  --dry-run=client -o yaml >pod_readRole.yaml 
+[ashu@roche-client kubearmor-test]$ kubectl  create -f pod_readRole.yaml 
+role.rbac.authorization.k8s.io/ashu-pod-readRole created
+[ashu@roche-client kubearmor-test]$ kubectl  get roles
+NAME                CREATED AT
+ashu-pod-readRole   2024-07-23T09:08:47Z
+[ashu@roche-client kubearmor-test]$ 
+
+
+
+```
+
+### Roles and ClusterRole
+
+<img src="Roles1.png">
+
+### binding clusterRole to svc account 
+
+```
+[ashu@roche-client kubearmor-test]$ kubectl  get  clusterrole  | grep -i ashu
+ashu-cls-role                                                          2024-07-23T09:25:01Z
+ashu-reader                                                            2024-07-23T01:14:28Z
+[ashu@roche-client kubearmor-test]$ 
+[ashu@roche-client kubearmor-test]$ kubectl  get  sa
+NAME      SECRETS   AGE
+ashu-sa   0         26m
+default   0         5d
+[ashu@roche-client kubearmor-test]$ kubectl create clusterrolebinding ashu-clsrole-bind1  --clusterrole ashu-cls-role --serviceaccount=ashu-app:ashu-sa   --dry-run=client -o yaml 
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  creationTimestamp: null
+  name: ashu-clsrole-bind1
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ashu-cls-role
+subjects:
+- kind: ServiceAccount
+  name: ashu-sa
+  namespace: ashu-app
+[ashu@roche-client kubearmor-test]$ kubectl create clusterrolebinding ashu-clsrole-bind1  --clusterrole ashu-cls-role --serviceaccount=ashu-app:ashu-sa   --dry-run=client -o yaml >clsrolebind1.yaml 
+[ashu@roche-client kubearmor-test]$ kubectl create -f clsrolebind1.yaml 
+clusterrolebinding.rbac.authorization.k8s.io/ashu-clsrole-bind1 created
+[ashu@roche-client kubearmor-test]$ 
+
+
+```
+
 
 
